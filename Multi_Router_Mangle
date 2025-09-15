@@ -1,0 +1,2 @@
+/ip firewall mangle
+add action=add-src-to-address-list address-list=Multi_Router address-list-timeout=23h chain=forward comment="Change TTL" connection-state=established in-interface=all-ppp ttl=less-than:62

@@ -1,0 +1,174 @@
+/system identity
+set name=SS-Broadband
+
+/interface bridge
+add name=Loopback
+
+/ip dns
+set servers=1.1.1.1,8.8.8.8,8.8.4.4
+
+/interface vlan
+add interface=sfp-sfpplus1 name=ALGO-INT vlan-id=1570
+add interface=sfp-sfpplus1 name=ALGO-GGC vlan-id=1571
+add interface=sfp-sfpplus1 name=ALGO-FNA vlan-id=1572
+add interface=sfp-sfpplus1 name=ALGO-BDIX vlan-id=1573
+add interface=sfp-sfpplus1 name=ALGO-CDN vlan-id=1574
+
+/ip firewall address-list
+add address=103.178.221.100 comment=NAT list=Bgp-Networks
+
+/ip address
+add address=172.20.24.82/30 interface=ALGO-INT network=
+add address=172.22.24.82/30 interface=ALGO-GGC network=
+add address=172.24.24.82/30 interface=ALGO-FNA network=
+add address=172.26.24.82/30 interface=ALGO-BDIX network=
+add address=172.28.24.82/30 interface=ALGO-CDN network=
+add address=103.178.221.100 comment=NAT interface=Loopback network=
+
+/ip firewall nat
+add action=src-nat chain=srcnat out-interface=ALGO-INT src-address-list=!Bgp-Networks to-addresses=103.178.221.100
+add action=src-nat chain=srcnat out-interface=ALGO-GGC src-address-list=!Bgp-Networks to-addresses=103.178.221.100
+add action=src-nat chain=srcnat out-interface=ALGO-FNA src-address-list=!Bgp-Networks to-addresses=103.178.221.100
+add action=src-nat chain=srcnat out-interface=ALGO-BDIX src-address-list=!Bgp-Networks to-addresses=103.178.221.100
+add action=src-nat chain=srcnat out-interface=ALGO-CDN src-address-list=!Bgp-Networks to-addresses=103.178.221.100
+
+/ip firewall filter
+add action=drop chain=forward src-address=172.31.0.0/21
+add action=drop chain=input src-address=172.31.0.0/21
+
+/routing bgp template
+add as=64531 disabled=no name=ALGO
+
+/routing bgp connection
+add as=64531 disabled=no local.role=ebgp name=ALGO-INT output.network=Bgp-Networks remote.address=172.20.24.81/32 .as=138004 routing-table=main templates=ALGO
+add as=64531 disabled=no local.role=ebgp name=ALGO-GGC output.network=Bgp-Networks remote.address=172.22.24.81/32 .as=138004 routing-table=main templates=ALGO
+add as=64531 disabled=no local.role=ebgp name=ALGO-FNA output.network=Bgp-Networks remote.address=172.24.24.81/32 .as=138004 routing-table=main templates=ALGO
+add as=64531 disabled=no local.role=ebgp name=ALGO-BDIX output.network=Bgp-Networks remote.address=172.26.24.81/32 .as=138004 routing-table=main templates=ALGO
+add as=64531 disabled=no local.role=ebgp name=ALGO-CDN output.network=Bgp-Networks remote.address=172.28.24.81/32 .as=149994 routing-table=main templates=ALGO
+
+/ip service
+set telnet disabled=yes
+set ftp disabled=yes
+set www disabled=yes port=8081
+set ssh disabled=yes
+set api disabled=yes
+set winbox port=6252
+
+/system clock
+set time-zone-name=Asia/Dhaka
+
+/system ntp client
+set enabled=yes
+
+/system ntp client servers
+add address=bd.pool.ntp.org
+add address=182.16.156.5
+
+/tool graphing interface
+add interface=ALGO-INT
+add interface=ALGO-GGC
+add interface=ALGO-FNA
+add interface=ALGO-CDN
+add interface=ALGO-BDIX
+
+==========================================================================================================================================================================
+
+/ip pool
+add name=8Mbps ranges=10.8.0.2-10.8.0.254
+add name=13Mbps ranges=10.13.0.2-10.13.5.254
+add name=16Mbps ranges=10.16.0.2-10.16.3.254
+add name=21Mbps ranges=10.21.0.2-10.21.0.254
+add name=27Mbps ranges=10.27.0.2-10.27.0.254
+add name=30Mbps ranges=10.30.0.2-10.30.0.254
+add name=40Mbps ranges=10.40.0.2-10.40.0.254
+add name=60Mbps ranges=10.60.0.2-10.60.0.254
+add name=90Mbps ranges=10.90.0.2-10.90.0.254
+add name=bypass ranges=192.168.0.2-192.168.7.254
+add name=Expired_Pool ranges=172.31.0.0/21
+
+/ppp profile
+add dns-server=1.1.1.1,8.8.8.8 local-address=10.8.0.1 name=8Mbps remote-address=8Mbps
+add dns-server=1.1.1.1,8.8.8.8 local-address=10.13.0.1 name=13Mbps remote-address=13Mbps
+add dns-server=1.1.1.1,8.8.8.8 local-address=10.16.0.1 name=16Mbps remote-address=16Mbps
+add dns-server=1.1.1.1,8.8.8.8 local-address=10.21.0.1 name=21Mbps remote-address=21Mbps
+add dns-server=1.1.1.1,8.8.8.8 local-address=10.30.0.1 name=30Mbps remote-address=30Mbps
+add dns-server=1.1.1.1,8.8.8.8 local-address=10.40.0.1 name=40Mbps remote-address=40Mbps
+add dns-server=1.1.1.1,8.8.8.8 local-address=10.60.0.1 name=60Mbps remote-address=60Mbps
+add dns-server=1.1.1.1,8.8.8.8 local-address=10.90.0.1 name=90Mbps remote-address=90Mbps
+add dns-server=1.1.1.1,8.8.8.8 local-address=172.31.0.1 name=Expired remote-address=Expired_Pool
+
+/queue type
+add kind=pcq name=Cache-DL pcq-classifier=dst-address pcq-rate=100M
+add kind=pcq name=Cache-UL pcq-classifier=src-address pcq-rate=100M
+add kind=pcq name=CDN-Cache-DL pcq-classifier=dst-address pcq-rate=70M
+add kind=pcq name=CDN-Cache-UL pcq-classifier=src-address pcq-rate=100M
+add kind=pcq name=13MB-INT-UL pcq-classifier=src-address pcq-rate=13M
+add kind=pcq name=13MB-INT-DL pcq-classifier=dst-address pcq-rate=13M
+add kind=pcq name=16MB-INT-DL pcq-classifier=dst-address pcq-rate=16M
+add kind=pcq name=16MB-INT-UL pcq-classifier=src-address pcq-rate=16M
+add kind=pcq name=21MB-INT-DL pcq-classifier=dst-address pcq-rate=21M
+add kind=pcq name=21MB-INT-UL pcq-classifier=src-address pcq-rate=21M
+add kind=pcq name=27MB-INT-DL pcq-classifier=dst-address pcq-rate=27M
+add kind=pcq name=27MB-INT-UL pcq-classifier=src-address pcq-rate=27M
+add kind=pcq name=30MB-INT-DL pcq-classifier=dst-address pcq-rate=30M
+add kind=pcq name=30MB-INT-UL pcq-classifier=src-address pcq-rate=30M
+add kind=pcq name=40MB-INT-DL pcq-classifier=dst-address pcq-rate=40M
+add kind=pcq name=40MB-INT-UL pcq-classifier=src-address pcq-rate=40M
+add kind=pcq name=60MB-INT-DL pcq-classifier=dst-address pcq-rate=60M
+add kind=pcq name=60MB-INT-UL pcq-classifier=src-address pcq-rate=60M
+add kind=pcq name=75MB-INT-DL pcq-classifier=dst-address pcq-rate=75M
+add kind=pcq name=75MB-INT-UL pcq-classifier=src-address pcq-rate=75M
+add kind=pcq name=90MB-INT-DL pcq-classifier=dst-address pcq-rate=90M
+add kind=pcq name=90MB-INT-UL pcq-classifier=src-address pcq-rate=90M
+
+/queue simple
+add max-limit=4k/4k name=Expire target=172.31.0.0/21
+
+/queue simple
+add dst=ALGO-BDIX max-limit=2G/2G name=BDIX-CACHE queue=default/default target=""
+add dst=ALGO-FNA max-limit=2G/2G name=FNA-CACHE queue=default/default target=""
+add dst=ALGO-GGC max-limit=2G/2G name=GGC-CACHE queue=default/default target=""
+add dst=ALGO-CDN max-limit=2G/2G name=CDN-CACHE queue=default/default target=""
+add dst=ALGO-INT max-limit=1G/1G name=13MB-INT-0 queue=13MB-INT-UL/13MB-INT-DL target=10.13.0.0/24
+add dst=ALGO-INT max-limit=1G/1G name=13MB-INT-1 queue=13MB-INT-UL/13MB-INT-DL target=10.13.1.0/24
+add dst=ALGO-INT max-limit=1G/1G name=13MB-INT-2 queue=13MB-INT-UL/13MB-INT-DL target=10.13.2.0/24
+add dst=ALGO-INT max-limit=1G/1G name=13MB-INT-3 queue=13MB-INT-UL/13MB-INT-DL target=10.13.3.0/24
+add dst=ALGO-INT max-limit=1G/1G name=13MB-INT-4 queue=13MB-INT-UL/13MB-INT-DL target=10.13.4.0/24
+add dst=ALGO-INT max-limit=1G/1G name=13MB-INT-5 queue=13MB-INT-UL/13MB-INT-DL target=10.13.5.0/24
+add dst=ALGO-INT max-limit=1G/1G name=16MB-INT-0 queue=16MB-INT-UL/16MB-INT-DL target=10.16.0.0/24
+add dst=ALGO-INT max-limit=1G/1G name=16MB-INT-1 queue=16MB-INT-UL/16MB-INT-DL target=10.16.1.0/24
+add dst=ALGO-INT max-limit=1G/1G name=16MB-INT-2 queue=16MB-INT-UL/16MB-INT-DL target=10.16.2.0/24
+add dst=ALGO-INT max-limit=1G/1G name=16MB-INT-3 queue=16MB-INT-UL/16MB-INT-DL target=10.16.3.0/24
+add dst=ALGO-INT max-limit=1G/1G name=21MB-INT-0 queue=21MB-INT-UL/21MB-INT-DL target=10.21.0.0/24
+add dst=ALGO-INT max-limit=1G/1G name=27MB-INT-0 queue=27MB-INT-UL/27MB-INT-DL target=10.27.0.0/24
+add dst=ALGO-INT max-limit=1G/1G name=30MB-INT-0 queue=30MB-INT-UL/30MB-INT-DL target=10.30.0.0/24
+add dst=ALGO-INT max-limit=1G/1G name=40MB-INT-0 queue=40MB-INT-UL/40MB-INT-DL target=10.40.0.0/24
+add dst=ALGO-INT max-limit=1G/1G name=60MB-INT-0 queue=60MB-INT-UL/60MB-INT-DL target=10.60.0.0/24
+add dst=ALGO-INT max-limit=1G/1G name=75MB-INT-0 queue=75MB-INT-UL/75MB-INT-DL target=10.75.0.0/24
+add dst=ALGO-INT max-limit=1G/1G name=90MB-INT-0 queue=90MB-INT-UL/90MB-INT-DL target=10.90.0.0/24
+
+/ip firewall mangle
+add action=add-src-to-address-list address-list=Multirouter address-list-timeout=23h chain=forward comment="Change TTL" connection-state=established in-interface=all-ppp ttl=less-than:62
+
+============================================================================================================================================
+Radiaus:
+--------
+
+/interface pptp-client
+add connect-to=103.142.69.10 disabled=no name=MAXIM-PPtP user=SS-broadband
+
+/interface pptp-server server
+set authentication=pap,chap,mschap1,mschap2 enabled=yes
+	
+/ppp aaa
+set interim-update=5m use-radius=yes
+
+/radius
+add address=10.254.0.1 service=ppp timeout=3s
+add address=103.142.69.10 service=ppp src-address=103.178.221.100 timeout=3s
+
+/radius incoming
+set accept=yes port=1700
+
+/user aaa
+set use-radius=yes

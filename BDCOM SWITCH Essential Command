@@ -1,0 +1,305 @@
+BDCOM Series is a new-generation smart access switch designed for carrier’s IP MAN and enterprise networks. Based on the new-generation high-performance hardware and BDROS platform, it supports functions such as ACL, QinQ and QoS
+
+1. Setup interface vlan-id
+2. Setup ip addres
+
+3. Assign vlan-id at interface
+4.configure default gateway
+5. show ip addres on vlan-id ***** show interface vlan-id **********
+6. Configure Username Password Enable for console and Telnet****** aaa authenication login default login
+aaa authenication enable default enable
+username bdcom password bdcom
+enable password bdcom
+service password encription *********
+
+7. Duplex Setting
+
+PALTAN-BDCOM>ena
+PALTAN-BDCOM#conf
+PALTAN-BDCOM_config#interface gigaEthernet 0/1
+PALTAN-BDCOM_config_g0/1#duplex ?
+auto — Enable AUTO duplex configuration
+full — Force full duplex operation
+half — Force half-duplex operation
+PALTAN-BDCOM_config_g0/1#duplex
+
+8. Setting speed option
+
+PALTAN-BDCOM#config
+PALTAN-BDCOM_config#interface gigaEthernet 0/1
+PALTAN-BDCOM_config_g0/1#speed ?
+10 — Force 10 Mbps operation
+100 — Force 100 Mbps operation
+auto — Enable AUTO speed configuration
+
+9. Showing speed and duplex
+===============================
+PALTAN-BDCOM#show interface gigaEthernet 0/1
+GigaEthernet0/1 is down, line protocol is down
+Ifindex is 1, unique port number is 1
+Hardware is Giga-TX, address is 8479.737f.7ed4 (bia 8479.737f.7ed4)
+MTU 1500 bytes, BW 1000000 kbit, DLY 10 usec
+Encapsulation ARPA
+Auto-duplex, Auto-speed, Flow-Control Off
+5 minutes input rate 0 bits/sec, 0 packets/sec
+5 minutes output rate 0 bits/sec, 0 packets/sec
+Received 0 packets, 0 bytes
+0 broadcasts, 0 multicasts
+0 discard, 0 error, 0 PAUSE
+0 align, 0 FCS, 0 symbol
+0 jabber, 0 oversize, 0 undersize
+0 carriersense, 0 collision, 0 fragment
+0 L3 packets, 0 discards, 0 Header errors
+Transmitted 0 packets, 0 bytes
+0 broadcasts, 0 multicasts
+0 discard, 0 error, 0 PAUSE
+0 sqettest, 0 deferred, 0 oversize
+0 single, 0 multiple, 0 excessive, 0 late
+0 L3 forwards
+
+10. Showing mac address table
+=====================================
+PALTAN-BDCOM#show mac address-table
+Mac Address Table (Total 735)
+——————————————
+
+Vlan Mac Address Type Ports
+—- ———– —- —–
+520 0005.9b25.afd9 DYNAMIC tg0/4
+1220 b869.f400.b7bf DYNAMIC g0/21
+425 18d6.c794.5159 DYNAMIC tg0/3
+425 18d6.c755.3543 DYNAMIC tg0/3
+143 0005.9b25.afd9 DYNAMIC tg0/4
+
+11. Saving Configure
+===========================================
+PALTAN-BDCOM#write
+Saving current configuration…
+OK!
+
+12. Clearing NVRAM (Reset the system configuration to factory default
+======================================
+PALTAN-BDCOM#delete
+
+————————————————
+| Advanced Configure |
+————————————————
+#mac addres security
+#VLAN & 802.1Q VLAN TRUNK
+#Spanning Tree Configure (STP)
+#CAR Configure
+#System MTU Configure
+#SNMP Configure
+#LLDP Configure
+#Port Aggregration
+#802.3ah configuration
+#Password Recovery
+
+13. MAC Address security
+================================
+PALTAN-BDCOM_config#interface gigaEthernet 0/1
+PALTAN-BDCOM_config_g0/1#switchport port-security mode st
+static sticky
+PALTAN-BDCOM_config_g0/1#switchport port-security mode static ?
+accept — Accept mode
+reject — Reject mode
+
+14. Vlan configuration
+=======================================
+PALTAN-BDCOM#config
+PALTAN-BDCOM_config#vlan 1000
+PALTAN-BDCOM_config_vlan1000#name test
+
+15. Assigning switch port to a vlan
+==============================================
+Madartek>ena
+Madartek#config
+Madartek_config#interface gigaEthernet 0/1
+Madartek_config_g0/1#switchport pvid 413
+
+16. Varifying a Vlan
+============================================
+Madartek#show vlan
+
+17. Configure 802.1Q VLAN TRUNK
+================================================
+Madartek#config
+Madartek_config#interface gigaEthernet 0/1
+Madartek_config_g0/1#switchport mode trunk
+
+18. Configure Spanning Tree Protocol
+=================================================
+Madartek>ena
+Madartek#config
+Madartek_config#spanning-tree mode rstp ?
+
+Madartek_config#spanning-tree mode ?
+mstp — Setup multiple spanning-tree protocol mode
+pvst — Setup spanning-tree protocol pvst mode
+rstp — Setup rapid spanning-tree protocol mode
+sstp — Setup spanning-tree protocol sstp mode
+Madartek_config#spanning-tree mode rstp
+Madartek_config#spanning-tree rstp priority 32768
+
+19. Varifying Spanning Tree
+=====================================
+Madartek#show spanning-tree
+
+Spanning tree enabled protocol RSTP(2004)
+
+RSTP
+Root ID Priority 32768
+Address 000A.5A41.FC4F
+Port TGigaEthernet0/3
+Cost 28004
+Hello Time 2 sec Max Age 20 sec Forward Delay 15 sec
+
+Bridge ID Priority 32768
+Address 8479.737F.9337
+Hello Time 2 sec Max Age 20 sec Forward Delay 15 sec
+
+Interface Role Sts Cost Pri.Nbr Type
+—————- —- — ——— ——– ———————–
+g0/22 Desg FWD 20000 128.22 Edge
+g0/23 Desg FWD 20000 128.23 Edge
+tg0/2 Desg FWD 2000 128.26 P2p
+tg0/3 Root FWD 2000 128.27 P2p
+
+20. CAR( Commit Access Rate) Limit bandwidth of a switch port
+===================================================================
+
+Madartek#config
+Madartek_config#interface gigaEthernet 0/1
+Madartek_config_g0/1#switchport rate-limit ?
+<1-16384> — Configure Bandwidth(unit:64kbps)
+bandwidth — Configure Bandwidth(unit:1% of physical bandwidth)
+Madartek_config_g0/1#switchport rate-limit 1 ?
+ingress — Config port rate-limit ingress
+egress — Config port rate-limit egress
+Madartek_config_g0/1#switchport rate-limit 1 ingress
+Madartek_config_g0/1#switchport rate-limit 1 egress
+
+21. MTU ( Maxium Transfer Unit )
+=====================================================
+Madartek#config
+Madartek_config#system mtu ?
+<1500-9216> MTU size in bytes
+
+22. Show MTU ( Maxium Transfer Unit )
+==========================================
+Madartek#show system mtu
+System MTU size is 1500 bytes
+
+23. SNMP ( Simple Network Management Protocol ) Public and Private
+=====================================================================
+Madartek#config
+Madartek_config#snmp-server community public r
+ro rw
+Madartek_config#snmp-server community public r
+ro rw
+Madartek_config#snmp-server community public rw
+
+24. LLDP ( Link Layer Discovery Protocol ) update information between two switch
+================================================================================
+Madartek#config
+Madartek_config#lldp ?
+holdtime — Specify the holdtime (in sec) to be sent in packets
+reinit — Delay (in sec) for LLDP initialization on any interface
+run — Enable PTOPO discovery protocol to run
+timer — Specify the interval at which packets are sent
+tlv-select — Selection of LLDP TLVs to send
+trap-send — Send SNMP trap
+
+25. Show LLDP ( Link Layer Discovery Protocol ) update information between two switch
+================================================================================
+PALTAN-BDCOM_config#show lldp neighbors
+Madartek#show lldp neighbor detail
+
+26. Port Aggregration
+=================================
+Madartek>ena
+Madartek#config
+Madartek_config#interface port-aggregator ?
+<1-8> — Port-aggregator interface number
+Madartek_config#interface gigaEthernet 0/1
+Madartek_config_g0/1#aggregator-group ?
+<1-8> — aggregator group number
+
+27. Password Recovery
+==========================================
+#Go to monitor mode for check your username & password
+#Reboot & Pressing ctrl+P make switches go to monitor mode
+monitor#show configuration
+
+28. Delete configuration & Reboot
+=============================================
+monitor#delete
+monitor#reboot
+
+29. Spanning Tree vlan priority
+=================================================
+PALTAN-BDCOM_config#spanning-tree vlan 115,215,315 priority 16
+Bridge priority should be one of the following values:
+0 4096 8192 12288 16384 20480 24576 28672
+32768 36864 40960 45056 49152 53248 57344 61440
+PALTAN-BDCOM_config#spanning-tree vlan 115,215,315 priority 4096
+
+30. Spanning Tree port priority
+=====================================================
+Dolaikhali_config_g0/24#spanning-tree port-priority 230
+Port priority should be one of the following values:
+0 16 32 48 64 80 96 112
+128 144 160 176 192 208 224 240
+
+31. Show spanning tree specific internerface
+========================================
+PALTAN-BDCOM#sh spanning-tree ?
+
+detail — Display spanning-tree detail information
+interface — Display spanning-tree interface information
+mstp — Display multiple spanning tree protocol information
+pvst — Display spanning-tree pvst information
+vlan — Display spanning-tree vlan information
+PALTAN-BDCOM#sh spanning-tree interface gigaEthernet 0/24
+
+32. Configure spanning tree path cost of vlan & interfaces
+==========================================
+PALTAN-BDCOM_config_g0/24#spanning-tree vlan 115,215,315 ?
+cost — Setup spanning-tree protocol port cost
+port-priority — Setup spanning-tree protocol port priority
+PALTAN-BDCOM_config_g0/24#spanning-tree vlan 115,215,315 cost 10000
+
+PALTAN-BDCOM_config_g0/24#spanning-tree rstp ?
+cost — Setup spanning-tree protocol port cost
+port-priority — Setup spanning-tree protocol port priority
+edge — Configure edge port
+point-to-point — Set the point-to-point link status
+migration-check — Clear detected protocol information
+PALTAN-BDCOM_config_g0/24#spanning-tree rstp cost 10000
+PALTAN-BDCOM_config_g0/24#ex
+PALTAN-BDCOM_config#wr
+
+https://slideplayer.com/slide/6393664/
+
+**********************************************
+Remove Command
+**********************************************
+Delete ip address from interface
+——————————————————
+
+Config# int vlan 1
+Config# no ip address
+Delete username
+——————————————————
+Maghbazar_config#no username admin
+
+VLAN CONFIGURATION
+————————————————–
+#For
+interface GigaEthernet0/21
+switchport trunk vlan-allowed 101,111,211,311,404
+switchport trunk vlan-untagged 1
+switchport pvid 407
+
+2. PALTAN-BDCOM_config_g0/1#switchport mode trunk
+3. PALTAN-BDCOM_config_g0/1#switchport mode access

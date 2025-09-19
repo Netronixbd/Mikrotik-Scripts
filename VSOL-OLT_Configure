@@ -1,0 +1,100 @@
+Our uplink port is G1 and let's start creating VLANs.
+
+
+Username:admin
+Password: Xpon@Olt9417#
+
+epon-OLT> ena
+
+Password: Xpon@Olt9417#
+
+epon-OLT#configure terminal
+
+epon-OLT(config)#
+
+epon-OLT(config)# vlan 400 - 404
+
+epon-OLT(config)# exit
+
+
+
+
+Our VLANs (400 - 404)
+
+
+Now we are configuring our uplink as G1
+
+
+epon-OLT(config)# interface gigabitethernet 0/1
+
+epon-OLT(config-if-ge0/1)# switchport mode trunk
+
+epon-OLT(config-if-ge0/1)# switchport trunk vlan 400 - 404
+
+epon-OLT(config-if-ge0/1)# exit
+
+
+Our uplink port G1 is successfully trunk or tag configured with VLANs.
+
+
+epon-OLT(config)# show mac address-table interface gigabitethernet 0/1
+
+
+
+Step 3: IP address assigned
+We can access OLT from our LAN side. It needs to assign an IP address.
+
+epon-OLT(config)# interface VLAN 400
+
+epon-OLT(interface-vlan-200)# ip address 10.100.100.2  255.255.255.252
+
+epon-OLT(interface-vlan-200)# exit
+
+epon-OLT(config)# ip route 0.0.0.0/0  10.100.100.1
+
+
+
+
+Step 4: Pon Port Configure
+Now we need to configure the PON port. We have created 4 VLANs for 4 PON ports.
+so let's start,
+
+
+PON- 1
+epon-OLT(config)# interface epon 0/1
+
+epon-OLT(config-pon-0/1)# switchport mode access
+
+epon-OLT(config-pon-0/1)# switchport access VLAN 401
+
+epon-OLT(config-pon-0/1)# exit
+
+
+PON- 2
+epon-OLT(config)# interface epon 0/2
+
+epon-OLT(config-pon-0/2)# switchport mode access
+
+epon-OLT(config-pon-0/2)# switchport access VLAN 402
+
+epon-OLT(config-pon-0/2)# exit
+
+
+PON- 3
+epon-OLT(config)# interface epon 0/3
+
+epon-OLT(config-pon-0/3)# switchport mode access
+
+epon-OLT(config-pon-0/3)# switchport access VLAN 403
+
+epon-OLT(config-pon-0/3)# exit
+
+
+PON- 4
+epon-OLT(config)# interface epon 0/4
+
+epon-OLT(config-pon-0/4)# switchport mode access
+
+epon-OLT(config-pon-0/4)# switchport access VLAN 404
+
+epon-OLT(config-pon-0/4)# exit

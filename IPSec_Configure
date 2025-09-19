@@ -1,0 +1,19 @@
+/ip ipsec mode-config
+add address-pool=IPSecVPN address-prefix-length=32 name=amirmode
+
+/ip ipsec profile
+add dh-group=modp2048 dpd-interval=disable-dpd enc-algorithm=aes-256 \
+    hash-algorithm=sha256 name=amir
+	
+/ip ipsec peer
+add exchange-mode=ike2 name=amir passive=yes profile=amir
+
+/ip ipsec proposal
+add auth-algorithms=sha256 enc-algorithms=aes-256-cbc lifetime=1d name=\
+    amir-Personal pfs-group=modp2048
+	
+/ip ipsec identity
+add generate-policy=port-strict mode-config=amirmode peer=amir secret=amir@123
+
+/ip ipsec policy
+set 0 proposal=amir-Personal

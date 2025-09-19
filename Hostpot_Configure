@@ -1,0 +1,29 @@
+
+# Variables
+:local hotspot_interface : ether2
+:local hotspot_address	 : 192.168.88.1/24
+:local hotspot_pool_start: 192.168.88.10
+:local hotspot_pool_end	 : 192.168.88.254
+:local dns_name			 : hotspot.local
+:local admin_user		 : noc
+:local admin_password	 : n0cteam
+
+
+# Assign IP address to the Hotspot interface
+/ip address add address=192.168.88.1/24 interface=ether2
+
+# Create the DHCP IP pool for Hotspot clients
+/ip pool add name=hotspot-pool ranges=192.168.88.10-192.168.88.254
+
+# Set up DHCP for the Hotspot network
+/ip dhcp-server add interface=ether2 lease-time=1h address-pool=hotspot-pool
+/ip dhcp-server network add address=192.168.88.1/24 dns-server=192.168.88.1/24 gateway=192.168.88.1/24
+
+# Configure the Hotspot server
+/ip hotspot setup interface=ether2 address-pool=hotspot-pool dns-name=hotspot.local=hotspot-server addresses=192.168.88.1/24
+
+# Create an admin user for the Hotspot
+/ip hotspot user add name=noc password=n0cteam profile=default
+
+# Enable NAT to allow users to access the internet
+/ip firewall nat add chain=srcnat action=masquerade out-interface=<WAN_Interface> hotspot=auth
